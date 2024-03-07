@@ -1,0 +1,86 @@
+---
+- name: Java version 21 installation on Vagrant hosts
+  hosts: vagrant
+  remote_user: vagrant
+  vars_files:
+     - playbook_vars/java_install_vars.yaml
+  become: true
+
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        upgrade: yes
+        update-cache: yes
+
+    - name: Create "Downloads" folder if doesnt exist
+      file:
+        path: {{ downloads_path }}
+        state: directory
+
+    - name: Create "/usr/lib/jvm" if doesnt exist
+      file:
+        path: {{ jvm_dir }}
+        state: directory
+  
+    - name: Download ARM64 Compressed Archive
+      get_url:
+        url: https://download.oracle.com/java/21/latest/jdk-21_linux-aarch64_bin.tar.gz
+        dest: "{{ downloads_path }}/jdk-21_linux-aarch64_bin.tar.gz"
+        checksum: sha256:14504bcdea0d8bc3fe9f065924e9e2dc631317b023a722565c8239075f39062d
+    
+    - name: Unarchive downloaded compressed Archive
+      unarchive:
+        src: {{ archive_path }}
+        dest: {{ jvm_dir }}
+        remote_src: yes
+
+    - name: Rename folder to jdk-21 
+      command: "mv {{ jvm_dir }}/jdk-21.0.2 {{ jvm_dir }}/jdk-21"
+
+    - name: Remove compressed archive
+      file:
+        path: "{{ downloads_path }}/jdk*.tar.gz"
+        state: absent
+
+    - name: Create symbolic link for java
+      alternatives:
+        name: java
+        link: /usr/bin/java
+        path: "{{ jvm_dir }}/jdk-21/bin/java"
+        priority: 1
+    
+    - name: Create symbolic link for javac
+      alternatives:
+        name: javac
+        link: /usr/bin/javac
+        path: "{{ jvm_dir }}/jdk-21/bin/javac"
+        priority: 1
+    
+    - name: Create symbolic link for jar
+      alternatives:
+        name: jar
+        link: /usr/bin/jar
+        path: "{{ jvm_dir }}/jdk-21/bin/jar"
+        priority: 1
+
+    - name: Create config file for java to make it 
+      file:
+        path: /etc/profile.d/jdk.sh
+        state: touch
+        mode: 777
+
+    - name: Append export commands in file
+      blockinfile:
+        path: /etc/profile.d/jdk.sh
+        append_newline: true
+        prepend_newline: true
+        block: |
+          export J2SDKDIR=/usr/lib/jvm/jdk-21
+          export J2REDIR=/usr/lib/jvm/jdk-21
+          export PATH=$PATH:/usr/lib/jvm/jdk-21/bin:/usr/lib/jvm/jdk-21/db/bin
+          export JAVA_HOME=/usr/lib/jvm/jdk-21
+          export DERBY_HOME=/usr/lib/jvm/jdk-21/db
+
+    - name: Verify JAVA_HOME
+      command: java -XshowSettings:properties -version
+...

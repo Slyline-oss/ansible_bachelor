@@ -1,0 +1,4 @@
+---
+jvm_dir: /usr/lib/jvm
+archive_path: /home/vagrant/Downloads/jdk-21_linux-aarch64_bin.tar.gz
+downloads_path: /home/vagrant/Downloads

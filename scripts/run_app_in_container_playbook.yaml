@@ -1,0 +1,8 @@
+---
+- name: Copy jar file to the remote host and run it in Docker container
+  hosts: vagrant
+  remote_user: vagrant
+  become: true
+
+  tasks:
+    - name: 
