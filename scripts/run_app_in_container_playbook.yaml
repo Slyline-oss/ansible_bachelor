@@ -2,33 +2,37 @@
 - name: Copy jar file to the remote host and run it in Docker container
   hosts: vagrant
   remote_user: vagrant
+  vars_files:
+    - playbook_vars/run_app_in_container_vars.yaml
+  vars:
+    - copydir: files_to_copy
   become: true
 
   tasks:
     - name: Create app folder
       file:
-        path: /home/vagrant/app
+        path: "{{ workdir }}"
         state: directory
     
     - name: Copy Docker file
       copy:
-        src: files_to_copy/Dockerfile
-        dest: /home/vagrant/app
+        src: "{{files_to_copy}}/Dockerfile"
+        dest: "{{ workdir }}"
     
     - name: Copy jar file
       copy:
-        src: ../AnsibleTestApp/AnsibleTestApp/build/libs/AnsibleTestApp-0.0.1-SNAPSHOT.jar
-        dest: /home/vagrant/app/app.jar
+        src: "{{files_to_copy}}/AnsibleTestApp-0.0.1-SNAPSHOT.jar"
+        dest: "{{ workdir }}/app.jar"
 
     - name: Copy application.yaml file
       copy:
-        src: ../AnsibleTestApp/AnsibleTestApp/src/main/resources/application.properties
-        dest: /home/vagrant/app/application.properties
+        src: "{{files_to_copy}}/application.properties"
+        dest: "{{ workdir }}/application.properties"
 
     - name: Build an image from Dockerfile
       community.docker.docker_image:
         build:
-          path: /home/vagrant/app
+          path: "{{ workdir }}"
         name: test_app
         source: build
 
