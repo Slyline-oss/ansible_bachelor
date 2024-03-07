@@ -5,4 +5,39 @@
   become: true
 
   tasks:
-    - name: 
+    - name: Create app folder
+      file:
+        path: /home/vagrant/app
+        state: directory
+    
+    - name: Copy Docker file
+      copy:
+        src: files_to_copy/Dockerfile
+        dest: /home/vagrant/app
+    
+    - name: Copy jar file
+      copy:
+        src: ../AnsibleTestApp/AnsibleTestApp/build/libs/AnsibleTestApp-0.0.1-SNAPSHOT.jar
+        dest: /home/vagrant/app/app.jar
+
+    - name: Copy application.yaml file
+      copy:
+        src: ../AnsibleTestApp/AnsibleTestApp/src/main/resources/application.properties
+        dest: /home/vagrant/app/application.properties
+
+    - name: Build an image from Dockerfile
+      community.docker.docker_image:
+        build:
+          path: /home/vagrant/app
+        name: test_app
+        source: build
+
+    - name: Start container using created image
+      community.docker.docker_container:
+        name: java-app
+        image: test_app
+        state: started
+        ports:
+          - "8081:8081"
+
+...

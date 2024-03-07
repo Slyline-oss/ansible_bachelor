@@ -14,12 +14,12 @@
 
     - name: Create "Downloads" folder if doesnt exist
       file:
-        path: {{ downloads_path }}
+        path: "{{ downloads_path }}"
         state: directory
 
     - name: Create "/usr/lib/jvm" if doesnt exist
       file:
-        path: {{ jvm_dir }}
+        path: "{{ jvm_dir }}"
         state: directory
   
     - name: Download ARM64 Compressed Archive
@@ -30,8 +30,8 @@
     
     - name: Unarchive downloaded compressed Archive
       unarchive:
-        src: {{ archive_path }}
-        dest: {{ jvm_dir }}
+        src: "{{ archive_path }}"
+        dest: "{{ jvm_dir }}"
         remote_src: yes
 
     - name: Rename folder to jdk-21 
