@@ -1,0 +1,47 @@
+{
+  "version": "1.6.5",
+  "timeZone": "Europe/Riga",
+  "instructions": [
+    {
+      "TYPE": "Execute.Named",
+      "jobName": "BuildAnImage",
+      "label": "BuildAnImage"
+    },
+    {
+      "TYPE": "Execute.Named",
+      "jobName": "RunContainer",
+      "label": "RunContainer"
+    }
+  ],
+  "jobs": {
+    "BuildAnImage": {
+      "agentName": "Test Agent",
+      "withSubagentClusterIdExpr": false,
+      "executable": {
+        "TYPE": "ShellScriptExecutable",
+        "script": "cd ~/Downloads\ndocker build -t test-app .",
+        "v1Compatible": false
+      },
+      "skipIfNoAdmissionForOrderDay": false,
+      "parallelism": 1,
+      "graceTimeout": 1,
+      "failOnErrWritten": false,
+      "warnOnErrWritten": false,
+      "title": "Build Image from Dockerfile"
+    },
+    "RunContainer": {
+      "agentName": "Test Agent",
+      "withSubagentClusterIdExpr": false,
+      "executable": {
+        "TYPE": "ShellScriptExecutable",
+        "script": "docker run -d -p 8081:8081 test-app",
+        "v1Compatible": false
+      },
+      "skipIfNoAdmissionForOrderDay": false,
+      "parallelism": 1,
+      "graceTimeout": 1,
+      "failOnErrWritten": false,
+      "warnOnErrWritten": false
+    }
+  }
+}

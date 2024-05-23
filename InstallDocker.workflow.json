@@ -1,0 +1,140 @@
+{
+  "version": "1.6.5",
+  "timeZone": "Europe/Riga",
+  "title": "Docker Installation on machine",
+  "instructions": [
+    {
+      "TYPE": "Execute.Named",
+      "jobName": "job1",
+      "label": "job1"
+    },
+    {
+      "TYPE": "Execute.Named",
+      "jobName": "job2",
+      "label": "job2"
+    },
+    {
+      "TYPE": "Try",
+      "try": {
+        "instructions": [
+          {
+            "TYPE": "Try",
+            "try": {
+              "instructions": [
+                {
+                  "TYPE": "Execute.Named",
+                  "jobName": "job3",
+                  "label": "job3"
+                }
+              ]
+            },
+            "catch": {
+              "instructions": [
+                {
+                  "TYPE": "Retry"
+                }
+              ]
+            },
+            "maxTries": 3,
+            "retryDelays": [
+              2
+            ]
+          }
+        ]
+      },
+      "catch": {
+        "instructions": []
+      }
+    },
+    {
+      "TYPE": "Execute.Named",
+      "jobName": "job4",
+      "label": "job4"
+    },
+    {
+      "TYPE": "Execute.Named",
+      "jobName": "job5",
+      "label": "job5"
+    }
+  ],
+  "jobs": {
+    "job1": {
+      "agentName": "Test Agent",
+      "withSubagentClusterIdExpr": false,
+      "executable": {
+        "TYPE": "ShellScriptExecutable",
+        "script": "echo -e $password | sudo apt-get update \nsudo apt-get install ca-certificates curl\nsudo install -m 0755 -d /etc/apt/keyrings\nsudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc\nsudo chmod a+r /etc/apt/keyrings/docker.asc",
+        "env": {
+          "password": "\"mclaud\""
+        },
+        "v1Compatible": false
+      },
+      "skipIfNoAdmissionForOrderDay": false,
+      "parallelism": 1,
+      "graceTimeout": 1,
+      "failOnErrWritten": false,
+      "warnOnErrWritten": false,
+      "title": "Add Docker's Official GPG key"
+    },
+    "job2": {
+      "agentName": "Test Agent",
+      "withSubagentClusterIdExpr": false,
+      "executable": {
+        "TYPE": "ShellScriptExecutable",
+        "script": "echo \\\n  \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \\\n  $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable\" | \\\n  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
+        "v1Compatible": false
+      },
+      "skipIfNoAdmissionForOrderDay": false,
+      "parallelism": 1,
+      "graceTimeout": 1,
+      "failOnErrWritten": false,
+      "warnOnErrWritten": false,
+      "title": "Add the repository to apt sources"
+    },
+    "job3": {
+      "agentName": "Test Agent",
+      "withSubagentClusterIdExpr": false,
+      "executable": {
+        "TYPE": "ShellScriptExecutable",
+        "script": "sudo apt-get update",
+        "v1Compatible": false
+      },
+      "skipIfNoAdmissionForOrderDay": false,
+      "parallelism": 1,
+      "graceTimeout": 1,
+      "failOnErrWritten": false,
+      "warnOnErrWritten": false,
+      "title": "Update packages"
+    },
+    "job4": {
+      "agentName": "Test Agent",
+      "withSubagentClusterIdExpr": false,
+      "executable": {
+        "TYPE": "ShellScriptExecutable",
+        "script": "yes | sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
+        "v1Compatible": false
+      },
+      "skipIfNoAdmissionForOrderDay": false,
+      "parallelism": 1,
+      "graceTimeout": 1,
+      "failOnErrWritten": false,
+      "warnOnErrWritten": false,
+      "title": "Install docker pacakges"
+    },
+    "job5": {
+      "agentName": "Test Agent",
+      "withSubagentClusterIdExpr": false,
+      "executable": {
+        "TYPE": "ShellScriptExecutable",
+        "script": "docker --version",
+        "v1Compatible": false
+      },
+      "skipIfNoAdmissionForOrderDay": false,
+      "parallelism": 1,
+      "graceTimeout": 1,
+      "failOnErrWritten": false,
+      "warnOnErrWritten": false,
+      "title": "Run docker command"
+    }
+  }
+}
